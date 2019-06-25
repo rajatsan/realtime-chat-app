@@ -8,6 +8,7 @@ const path = require('path');
 
 const userRouter = require('./routes/user');
 const sessionRouter = require('./routes/session');
+const auth = require('./utils/auth');
 const MongoStore = connectStore(session);
 
 (async () => {
@@ -40,13 +41,25 @@ const MongoStore = connectStore(session);
     app.use('/api', apiRouter);
 
     apiRouter.use('/session', sessionRouter); // handle session routing
+    apiRouter.use(auth);
     apiRouter.use('/users', userRouter);      // handle user routes
 
     app.use(express.static(path.join(__dirname, '../client/build')))
 
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname + '/../client/build/index.html'))
-    })
+    // app.get('*', (req, res) => {
+    //   res.sendFile(path.join(__dirname + '/../client/build/index.html'))
+    // });
+
+    // 404 handler
+    app.use(function (req, res, next) {
+      res.status(404).send('Not found!')
+    });
+
+    // error handler
+    app.use(function (err, req, res, next) {
+      res.status(err.status || 500);
+      res.send(err.message);
+    });
 
     app.listen(port, () => console.log(`App listening on port ${port}`));
   } catch (err) {

@@ -4,18 +4,24 @@ const User = require('../models/user');
 const sessionRouter = express.Router();
 
 // login user, save session 
-sessionRouter.post('', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-
-  if (user && user.comparePasswords(password)) {
-    const sessionInfo = {
-      userId: user.id,
-      username: user.username
-    };
-    req.session.user = sessionInfo;
-    res.send(sessionInfo);
+sessionRouter.put('', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
+  try {
+    if (user && user.comparePasswords(password)) {
+      const sessionInfo = {
+        userId: user.id,
+        username: user.username
+      };
+      req.session.user = sessionInfo;
+      res.send(sessionInfo);
+    } else {
+      res.status(401).send('Invalid');
+    }
+  } catch (err) {
+    res.status(400).send(err);
   }
+  
 });
 
 // logout user
@@ -32,7 +38,21 @@ sessionRouter.delete('', (req, res) => {
       throw new Error('Something went wrong');
     }
   } catch (err) {
-    res.status(400).send(parseError(err));
+    res.status(400).send(err);
+  }
+});
+
+// sign up user and save to session
+sessionRouter.post('', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const newUser = new User({ username, password });
+    
+    req.session.user = { userId: newUser.id, username };
+    await newUser.save();
+    res.send({ userId: newUser.id, username });
+  } catch (err) {
+    res.status(400).send(err);
   }
 });
 
