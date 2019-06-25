@@ -12,6 +12,8 @@ userRouter.post("", async (req, res) => {
     console.log('got post', username, password, req.body);
 
     const newUser = new User({ username, password });
+    req.session.user = { userId: newUser.id, username };
+    console.log('session', req.session);
     await newUser.save();
     res.send({ userId: newUser.id, username });
   } catch (err) {

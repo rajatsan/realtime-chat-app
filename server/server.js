@@ -1,9 +1,14 @@
 const express = require('express');
+const session = require('express-session');
+const connectStore = require('connect-mongo');
+const mongoose = require('mongoose');
 
 const port = process.env.PORT || 5000;
 const path = require('path');
-const mongoose = require('mongoose');
+
 const userRouter = require('./routes/user');
+const sessionRouter = require('./routes/session');
+const MongoStore = connectStore(session);
 
 (async () => {
   try {
@@ -11,12 +16,31 @@ const userRouter = require('./routes/user');
     console.log('MongoDB connected');
 
     const app = express();
+
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
+    app.use(session({
+      name: 'mysession',
+      secret: '1879',
+      saveUninitialized: false,
+      resave: false,
+      store: new MongoStore({
+        mongooseConnection: mongoose.connection,
+        collection: 'session',
+        ttl: 3600
+      }),
+      cookie: {
+        sameSite: true,
+        secure: false,
+        maxAge: 3600000
+      }
+    }));
 
     const apiRouter = express.Router();
     app.use('/api', apiRouter);
-    apiRouter.use('/users', userRouter);
+
+    apiRouter.use('/session', sessionRouter); // handle session routing
+    apiRouter.use('/users', userRouter);      // handle user routes
 
     app.use(express.static(path.join(__dirname, '../client/build')))
 
@@ -24,7 +48,7 @@ const userRouter = require('./routes/user');
       res.sendFile(path.join(__dirname + '/../client/build/index.html'))
     })
 
-    app.listen(port, () => console.log('App listening on port 5000'));
+    app.listen(port, () => console.log(`App listening on port ${port}`));
   } catch (err) {
     console.error(err);
   }
