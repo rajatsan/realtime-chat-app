@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+
+import SignUpComponent from './components/SignUpComponent';
+import LoginComponent from './components/LoginComponent';
+import HomeComponent from './components/HomeComponent';
 
 class App extends Component {
 state = {
@@ -24,12 +28,27 @@ state = {
 
   render() {
     return (
-      <div className="App">
-        <h1>Welcome!</h1>
-        <Link to='/login'>Login</Link>
-        <Link to='/signup'>Signup</Link>
-        <Link to='/dashboard'>Dashboard</Link>
-      </div>
+      <Router>
+        <div>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/signup">Signup</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          </ul>
+
+          <hr />
+
+          <Route exact path="/" component={HomeComponent} />
+          <Route path="/signup" component={SignUpComponent} />
+          <Route path="/login" component={LoginComponent} />
+        </div>
+      </Router>
     );
   }
 }
