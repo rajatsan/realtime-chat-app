@@ -1,54 +1,55 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-import SignUpComponent from './components/SignUpComponent';
+
 import LoginComponent from './components/LoginComponent';
 import HomeComponent from './components/HomeComponent';
+import { sessionApi } from './api';
+
+import 'typeface-roboto';
+import './App.css';
 
 class App extends Component {
-state = {
-    data: null
+  state = {
+    username: '',
+    isLoading: false,
   };
 
   componentDidMount() {
-    this.callBackendAPI()
-      .then(res => this.setState({ data: res.express }))
-      .catch(err => console.log(err));
+    this.setState({ isLoading: true });
+
+    // check if user is logged in. If yes, put username in state.
+    fetch(sessionApi)
+      .then(res => res.json())
+      .then(res =>  {
+        if (res.user && res.user.username) {
+          this.setState({ username: res.user.username, isLoading: false })
+        } else {
+          this.setState({ username: '', isLoading: false })
+        }
+      })
+      .catch(err => { this.setState({isLoading: false}); console.log(err)});
+  }
+
+  onLogout = () => {
+    this.setState({ username: '' });
+  }
+
+  onLogin = (username) => {
+    this.setState({ username })
   }
   
-  callBackendAPI = async () => {
-    const response = await fetch('/express');
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message) 
-    }
-    return body;
-  };
-
   render() {
+    if (this.state.isLoading) {
+      return <div className='body'><CircularProgress /></div>
+    }
+
     return (
-      <Router>
-        <div>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/signup">Signup</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-          </ul>
-
-          <hr />
-
-          <Route exact path="/" component={HomeComponent} />
-          <Route path="/signup" component={SignUpComponent} />
-          <Route path="/login" component={LoginComponent} />
-        </div>
-      </Router>
+      <div>
+        {this.state.username ? 
+          <HomeComponent onLogout={this.onLogout} user={this.state.username}/> : <LoginComponent onLogin={this.onLogin}/>
+        }
+      </div>
     );
   }
 }
