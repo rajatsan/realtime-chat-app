@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-
 import LoginComponent from './components/LoginComponent';
 import HomeComponent from './components/HomeComponent';
 import { sessionApi } from './api';
@@ -18,7 +17,7 @@ class App extends Component {
   componentDidMount() {
     this.setState({ isLoading: true });
 
-    // check if user is logged in. If yes, put username in state.
+    // check if user is logged in.
     fetch(sessionApi)
       .then(res => res.json())
       .then(res =>  {

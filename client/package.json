@@ -8,6 +8,7 @@
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
+    "socket.io-client": "^2.2.0",
     "typeface-roboto": "0.0.54"
   },
   "scripts": {
@@ -31,5 +32,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000/"
+  "proxy": "localhost:5000"
 }

@@ -3,20 +3,26 @@ const session = require('express-session');
 const connectStore = require('connect-mongo');
 const mongoose = require('mongoose');
 
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const MongoStore = connectStore(session);
+
 const port = process.env.PORT || 5000;
 const path = require('path');
 
-const userRouter = require('./routes/user');
 const sessionRouter = require('./routes/session');
+const commentsRouter = require('./routes/comments');
 const auth = require('./utils/auth');
-const MongoStore = connectStore(session);
+const commentsSocket = require('./socket');
+
+const activeUsers = []; // list of users connected to chat room
 
 (async () => {
   try {
     await mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true });
     console.log('MongoDB connected');
 
-    const app = express();
 
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
@@ -28,12 +34,12 @@ const MongoStore = connectStore(session);
       store: new MongoStore({
         mongooseConnection: mongoose.connection,
         collection: 'session',
-        ttl: 3600
+        ttl: 36000
       }),
       cookie: {
         sameSite: true,
         secure: false,
-        maxAge: 3600000
+        maxAge: 36000000
       }
     }));
 
@@ -41,14 +47,13 @@ const MongoStore = connectStore(session);
     app.use('/api', apiRouter);
 
     apiRouter.use('/session', sessionRouter); // handle session routing
-    apiRouter.use(auth);
-    apiRouter.use('/users', userRouter);      // handle user routes
+    apiRouter.use(auth);                      // handle auth. Throws 401 if user is not logged in
+    apiRouter.get('/activeUsers', (_, res) => res.send(activeUsers));
+    apiRouter.use('/comments', commentsRouter);
+
+    io.on('connection', commentsSocket(io, activeUsers));  // handle comments socket connection
 
     app.use(express.static(path.join(__dirname, '../client/build')))
-
-    // app.get('*', (req, res) => {
-    //   res.sendFile(path.join(__dirname + '/../client/build/index.html'))
-    // });
 
     // 404 handler
     app.use(function (req, res, next) {
@@ -61,43 +66,10 @@ const MongoStore = connectStore(session);
       res.send(err.message);
     });
 
-    app.listen(port, () => console.log(`App listening on port ${port}`));
+    http.listen(port, () => console.log(`App listening on port ${port}`));
   } catch (err) {
     console.error(err);
   }
 })();
 
-
-// mongoose.connect('mongodb://localhost/test', {useNewUrlParser: true});
-
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-// const Schema = mongoose.Schema;
-// const userSchema = new Schema({
-//   a: String,
-//   b: String,
-// });
-// var SomeModel = mongoose.model('SomeModel', userSchema );
-
-// var awesome_instance = new SomeModel({ a: 'awesome' });
-
-// // Save the new model instance, passing a callback
-// awesome_instance.save(function (err) {
-//   if (err) return handleError(err);
-//   // saved!
-// });
-
-
-
-// app.get('/express', (req, res) => {
-//   res.send({ express: 'Hello' });
-// });
-
-// app.use(express.static(path.join(__dirname, '../client/build')))
-
-
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname + '/../client/build/index.html'))
-// })
-
-// app.listen(port, () => console.log(`Listening on port ${port}`));
+module.exports = io;

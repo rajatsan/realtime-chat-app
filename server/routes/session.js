@@ -21,7 +21,6 @@ sessionRouter.put('', async (req, res) => {
   } catch (err) {
     res.status(400).send(err);
   }
-  
 });
 
 // logout user
@@ -47,9 +46,9 @@ sessionRouter.post('', async (req, res) => {
   try {
     const { username, password } = req.body;
     const newUser = new User({ username, password });
-    
-    req.session.user = { userId: newUser.id, username };
+
     await newUser.save();
+    req.session.user = { userId: newUser.id, username };
     res.send({ userId: newUser.id, username });
   } catch (err) {
     res.status(400).send(err);

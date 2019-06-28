@@ -39,6 +39,10 @@ class LoginComponent extends React.Component {
   signup = () => {
     const { username, password, confPassword } = this.state;
 
+    if (username !== confPassword) {
+      console.error('passwords do not match');
+    }
+
     fetch(sessionApi, {
       method: 'post',
       body: JSON.stringify({ username, password }),
@@ -58,9 +62,13 @@ class LoginComponent extends React.Component {
   renderLogin = () => (
     <div>
       <div>Login</div>
+      <div>
+        Username<input onChange={this.handleInput('username')}/>
+      </div>
+      <div>
+        Password<input onChange={this.handleInput('password')}/>
+      </div>
       <button onClick={this.login}>Login</button>
-      <div>Username<input onChange={this.handleInput('username')}/></div>
-      <div>Password<input onChange={this.handleInput('password')}/></div>
       <hr />
       <div>New user? </div>
       <button onClick={() => this.setState({ signup: true })}>Signup </button>
@@ -71,10 +79,16 @@ class LoginComponent extends React.Component {
   renderSignUp = () => (
     <div>
       <div>Signup</div>
+      <div>
+        Username<input onChange={this.handleInput('username')}/>
+      </div>
+      <div>
+        Password<input onChange={this.handleInput('password')}/>
+      </div>
+      <div>
+        Confirm Password<input onChange={this.handleInput('confPassword')}/>
+      </div>
       <button onClick={this.signup}>Signup</button>
-      <div>Username<input onChange={this.handleInput('username')}/></div>
-      <div>Password<input onChange={this.handleInput('password')}/></div>
-      <div>Confirm Password<input onChange={this.handleInput('confPassword')}/></div>
       <hr />
       <div>Existing user? </div>
       <button onClick={() => this.setState({ signup: false })}>Login </button>

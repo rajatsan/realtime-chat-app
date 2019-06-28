@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     validate: {
-      validator: username => User.doesNotExist({ username }),
+      validator: username => User.isNew({ username }),
       message: "Username already exists"
     },
     required: true,
@@ -22,7 +22,7 @@ UserSchema.pre('save', function () {
   }
 });
 
-UserSchema.statics.doesNotExist = async function (field) {
+UserSchema.statics.isNew = async function (field) {
   return await this.where(field).countDocuments() === 0;
 };
 
