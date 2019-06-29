@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 
 import LoginComponent from './components/LoginComponent';
 import HomeComponent from './components/HomeComponent';
-import { sessionApi } from './api';
+import { sessionApi, allUsersApi } from './api';
 
 import 'typeface-roboto';
 import './App.css';
@@ -13,6 +13,7 @@ class App extends Component {
   state = {
     username: '',
     isLoading: false,
+    users: [],
   };
 
   componentDidMount() {
@@ -29,6 +30,19 @@ class App extends Component {
         }
       })
       .catch(err => { this.setState({isLoading: false}); console.log(err)});
+
+      // get all users
+      this.fetchUsers();
+  }
+
+  fetchUsers = () => {
+    fetch(allUsersApi)
+      .then(res => res.json())
+      .then(result => {
+        this.setState({
+          users: result.map(u => u.username.toLowerCase())
+        });
+      })
   }
 
   onLogout = () => {
@@ -46,15 +60,10 @@ class App extends Component {
 
     return (
       <div>
-        <div className='header'>
-          <div className='title'>Real-Time Chat Application</div>
-            {this.state.username ? 
-              <Button color='inherit'>Logout</Button> : ''
-            }
-          </div>
-          {this.state.username ? 
-            <HomeComponent onLogout={this.onLogout} user={this.state.username}/> : <LoginComponent onLogin={this.onLogin}/>
-          }
+        {this.state.username ? 
+          <HomeComponent onLogout={this.onLogout} user={this.state.username}/> 
+          : <LoginComponent onLogin={this.onLogin} users={this.state.users} fetchUsers={this.fetchUsers}/>
+        }
       </div>
     );
   }

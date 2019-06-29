@@ -17,6 +17,7 @@ const path = require('path');
 
 const sessionRouter = require('./routes/session');
 const commentsRouter = require('./routes/comments');
+const userRouter = require('./routes/users');
 const auth = require('./utils/auth');
 const socket = require('./socket');
 
@@ -54,6 +55,7 @@ MONGO_PWD = process.env.MONGO_PWD;
     app.use('/api', apiRouter);
 
     apiRouter.use('/session', sessionRouter); // handle session routing
+    apiRouter.use('/users', userRouter);
     apiRouter.use(auth);                      // handle auth. Throws 401 if user is not logged in
     apiRouter.get('/activeUsers', (_, res) => res.send(activeUsers));
     apiRouter.use('/comments', commentsRouter);

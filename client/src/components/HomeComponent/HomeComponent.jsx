@@ -2,6 +2,7 @@ import React from 'react';
 import { sessionApi, activeUsersApi } from '../../api';
 import io from 'socket.io-client';
 import ViewVideo from '../ViewVideoComponent';
+import Button from '@material-ui/core/Button';
 
 import './HomeComponent.css';
 
@@ -19,13 +20,7 @@ class HomeComponent extends React.Component {
   componentDidMount() {
     this.socket = io.connect('', { query: `username=${this.props.user}`});
 
-    // this.socket.emit('send message', {
-    //   message: `${this.props.user} joined.`,
-    //   username: this.props.user,
-    // })
-
     this.socket.on('video', (image) => {
-      // console.log('image', image)
       this.setState({ imageSrc: image })
     })
 
@@ -41,9 +36,7 @@ class HomeComponent extends React.Component {
   }
 
   logout = () => {
-    console.log('emitting disconnect yeah')
     this.socket.disconnect();
-    this.socket.disconnect()
     fetch(sessionApi, {
       method: 'delete'
     })
@@ -56,7 +49,12 @@ class HomeComponent extends React.Component {
 
   render() {
     return (
-      <div>Home
+      <div>
+         <div className='header'>
+          <div className='title'>Real-Time Chat Application</div>
+            <Button color='inherit' onClick={this.logout}>Logout</Button>
+        </div>
+        Home
         <button onClick={this.logout}>Logout</button>
         <div>Logged in as {this.props.user}</div>
         <div>

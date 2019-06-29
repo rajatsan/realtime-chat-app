@@ -5,6 +5,7 @@ import './ViewVideoComponent.css';
 class ViewVideoComponent extends React.Component {
 
   handleVideo = (stream) => {
+    this.stream = stream;
     const video = document.querySelector('video');
       video.srcObject = stream;
       video.onloadedmetadata = function(e) {
@@ -44,6 +45,16 @@ class ViewVideoComponent extends React.Component {
       );
     } else {
       navigator.getUserMedia({video: true}).then(stream => this.videoSuccess(stream))
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.video) {
+      this.video.pause();
+      this.video.src = null;
+    }
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop())
     }
   }
 
