@@ -18,7 +18,7 @@ const path = require('path');
 const sessionRouter = require('./routes/session');
 const commentsRouter = require('./routes/comments');
 const auth = require('./utils/auth');
-const commentsSocket = require('./socket');
+const socket = require('./socket');
 
 const activeUsers = []; // list of users connected to chat room
 
@@ -57,8 +57,8 @@ MONGO_PWD = process.env.MONGO_PWD;
     apiRouter.use(auth);                      // handle auth. Throws 401 if user is not logged in
     apiRouter.get('/activeUsers', (_, res) => res.send(activeUsers));
     apiRouter.use('/comments', commentsRouter);
-
-    io.on('connection', commentsSocket(io, activeUsers));  // handle comments socket connection
+    
+    io.on('connection', socket(io, activeUsers));  // handle comments socket connection
 
     app.use(express.static(path.join(__dirname, '../client/build')))
 

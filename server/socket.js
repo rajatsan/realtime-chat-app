@@ -1,6 +1,7 @@
 const Comment = require('./models/comments');
+const getEmotion = require('./utils/emotion');
 
-module.exports = function commentsSocket(io, activeUsers) {
+module.exports = function socket(io, activeUsers) {
   return function (socket) {
 
     const username = socket.handshake.query.username;
@@ -22,14 +23,24 @@ module.exports = function commentsSocket(io, activeUsers) {
     });
   
     // receive message. find out emotion. broadcast (message + emotion) to all active users and also archive in db
-    socket.on('send message', ({ message, username }) => {
+    socket.on('send message', async ({ message, username }) => {
       console.log('message received', message, 'from user', username);
       io.emit('send message', { message, username }); // broadcast message
+
+      let emotion = await getEmotion(message);
+      
+      console.log('emotion', emotion);
 
       const newComment = new Comment({
         username, message, emotion: 'neutral'
       });
       newComment.save();
     });
+
+    // video handler
+    socket.on('video', (image) => {
+      // console.log('video', image)
+      socket.broadcast.emit('video', image)
+    })
   }
 }
