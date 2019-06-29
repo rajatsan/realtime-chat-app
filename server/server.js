@@ -3,6 +3,10 @@ const session = require('express-session');
 const connectStore = require('connect-mongo');
 const mongoose = require('mongoose');
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -18,17 +22,20 @@ const commentsSocket = require('./socket');
 
 const activeUsers = []; // list of users connected to chat room
 
+SESSION_SECRET = process.env.SESSION_SECRET;
+SESSION_NAME = process.env.SESSION_NAME;
+MONGO_PWD = process.env.MONGO_PWD;
+
 (async () => {
   try {
-    await mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true });
+    await mongoose.connect(`mongodb+srv://rajat:${MONGO_PWD}@cluster0-mynue.mongodb.net/test?retryWrites=true&w=majority`, { useNewUrlParser: true });
     console.log('MongoDB connected');
-
-
+    
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
     app.use(session({
-      name: 'mysession',
-      secret: '1879',
+      name: SESSION_NAME,
+      secret: SESSION_SECRET,
       saveUninitialized: false,
       resave: false,
       store: new MongoStore({
