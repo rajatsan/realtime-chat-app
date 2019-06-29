@@ -103,6 +103,7 @@ class LoginComponent extends React.Component {
           :
           this.renderLogin()
         }
+        <div className="test">Kaljsdlkfjlak;sdfK</div>
       </div>
     )
   }

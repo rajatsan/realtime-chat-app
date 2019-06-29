@@ -1,4 +1,34 @@
-.body {
+body {
   height: 100%;
   width: 100%;
+  margin: 0px;
+  padding: 0px;
+  font-family: Roboto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  height: 50px;
+  padding: 10px 30px;
+  background-color: var(--secondary);
+  color: white;
+}
+
+.title {
+  margin: auto 0px;
+  font-size: 20px;
+}
+
+:root {
+  --primary: #e57373;
+  --primaryLight: #ffa4a2;
+  --primaryDark: #af4448;
+  --secondary: #303f9f;
+  --secondaryLight: #666ad1;
+  --secondaryDark: #001970;
+}
+
+.button {
+  color: var(--primary);
 }

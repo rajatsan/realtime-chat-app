@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Button from '@material-ui/core/Button';
 
 import LoginComponent from './components/LoginComponent';
 import HomeComponent from './components/HomeComponent';
@@ -45,9 +46,15 @@ class App extends Component {
 
     return (
       <div>
-        {this.state.username ? 
-          <HomeComponent onLogout={this.onLogout} user={this.state.username}/> : <LoginComponent onLogin={this.onLogin}/>
-        }
+        <div className='header'>
+          <div className='title'>Real-Time Chat Application</div>
+            {this.state.username ? 
+              <Button color='inherit'>Logout</Button> : ''
+            }
+          </div>
+          {this.state.username ? 
+            <HomeComponent onLogout={this.onLogout} user={this.state.username}/> : <LoginComponent onLogin={this.onLogin}/>
+          }
       </div>
     );
   }
