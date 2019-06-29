@@ -1,6 +1,7 @@
 import React from 'react';
 import { sessionApi, activeUsersApi } from '../../api';
 import io from 'socket.io-client';
+import ViewVideo from '../ViewVideoComponent';
 
 import './HomeComponent.css';
 
@@ -11,6 +12,7 @@ class HomeComponent extends React.Component {
     this.state = {
       message: '',
       allMessages: [],
+      imageSrc: null,
     }
   }
 
@@ -21,6 +23,11 @@ class HomeComponent extends React.Component {
     //   message: `${this.props.user} joined.`,
     //   username: this.props.user,
     // })
+
+    this.socket.on('video', (image) => {
+      // console.log('image', image)
+      this.setState({ imageSrc: image })
+    })
 
     this.socket.on('send message', ({ message, username }) => {
       this.setState({
@@ -60,6 +67,9 @@ class HomeComponent extends React.Component {
         <button onClick={this.sendMessage}>Send message</button>
         {(this.state.allMessages || []).map(message => 
           <div>{message}</div>)}
+
+        <ViewVideo socket={this.socket}/>
+        <img src={this.state.imageSrc}/>
       </div>
     )
   }
