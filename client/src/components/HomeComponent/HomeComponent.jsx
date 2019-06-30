@@ -1,11 +1,13 @@
 import React from 'react';
-import { sessionApi, activeUsersApi } from '../../api';
+import { sessionApi } from '../../api';
 import io from 'socket.io-client';
 import ViewVideo from '../ViewVideoComponent';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import ChatComponent from '../ChatComponent';
+import Snackbar from '@material-ui/core/Snackbar';
+
 
 import './HomeComponent.css';
 
@@ -21,6 +23,7 @@ class HomeComponent extends React.Component {
       viewVideo: false,
       allusers: [],
       videoUsers: [],
+      notification: '',
     }
   }
 
@@ -103,7 +106,7 @@ class HomeComponent extends React.Component {
 
   render() {
     const activeUsers = this.getUserList();
-    const { viewVideo, shareVideo } = this.state;
+    const { viewVideo, shareVideo, videoUsers } = this.state;
     return (
       <div>
         <div className='header'>
@@ -120,7 +123,17 @@ class HomeComponent extends React.Component {
                 control={
                   <Checkbox 
                     checked={this.state.viewVideo} 
-                    onChange={() => this.setState({ viewVideo: !this.state.viewVideo })}
+                    onChange={() => {
+                      this.setState({ viewVideo: !viewVideo });
+                      if (videoUsers
+                          .filter(u => u !== this.props.user)
+                          .length === 0
+                      ) {
+                        this.setState({
+                          notification: "No one else is sharing video! Video will appear once anybody else turns on video sharing."
+                        })
+                      }
+                    }}
                   />
                 }
                 label="View Video"
@@ -156,21 +169,19 @@ class HomeComponent extends React.Component {
 
           <ChatComponent socket={this.socket} user={this.props.user} />
 
+          <Snackbar
+            open={this.state.notification !== ''}
+            autoHideDuration={6000}
+            onClose={() => this.setState({ notification: '' })}
+            ContentProps={{
+              'aria-describedby': 'message-id',
+            }}
+            message={
+              <span id="message-id">{this.state.notification}</span>
+            }
+          />
 
         </div>
-
-        {/* <div>Logged in as {this.props.user}</div>
-        <div>
-          <span>Enter message</span>
-          <input onChange={e => this.setState({message: e.target.value})}/>
-        </div>
-        
-        <button onClick={this.sendMessage}>Send message</button>
-        {(this.state.allMessages || []).map(message => 
-          <div>{message}</div>)}
-
-        <ViewVideo socket={this.socket}/>
-        <img src={this.state.imageSrc}/> */}
       </div>
     )
   }
