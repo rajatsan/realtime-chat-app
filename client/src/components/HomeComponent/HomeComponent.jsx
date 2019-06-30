@@ -30,13 +30,17 @@ class HomeComponent extends React.Component {
       this.setState({ imageSrc: image })
     });
 
+    this.socket.emit('join');
+    console.log('called join event');
     this.socket.on('user', (list) => {
+      console.log('mounting');
       this.setState({
         allusers: list
       })
     })
 
     this.socket.on('send message', ({ message, username }) => {
+      console.log('messgae')
       this.setState({
         allMessages: this.state.allMessages.concat([message])
       });
@@ -44,10 +48,13 @@ class HomeComponent extends React.Component {
   }
 
   componentWillUnmount() {
+    this.socket.emit('leave');
     this.socket.disconnect();
   }
 
   logout = () => {
+    console.log('eavging');
+    this.socket.emit('leave');
     this.socket.disconnect();
     fetch(sessionApi, {
       method: 'delete'
@@ -67,7 +74,7 @@ class HomeComponent extends React.Component {
 
   render() {
     const activeUsers = this.getUserList();
-
+    console.log('users', activeUsers)
     return (
       <div>
         <div className='header'>

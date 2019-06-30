@@ -54,7 +54,7 @@ MONGO_PWD = process.env.MONGO_PWD;
     const apiRouter = express.Router();
     app.use('/api', apiRouter);
 
-    apiRouter.use('/session', sessionRouter); // handle session routing
+    apiRouter.use('/session', sessionRouter(activeUsers)); // handle session routing
     apiRouter.use('/users', userRouter);
     apiRouter.use(auth);                      // handle auth. Throws 401 if user is not logged in
     apiRouter.get('/activeUsers', (_, res) => res.send(activeUsers));
