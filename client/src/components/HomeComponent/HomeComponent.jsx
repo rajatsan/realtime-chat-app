@@ -124,15 +124,15 @@ class HomeComponent extends React.Component {
                   <Checkbox 
                     checked={this.state.viewVideo} 
                     onChange={() => {
-                      this.setState({ viewVideo: !viewVideo });
                       if (videoUsers
-                          .filter(u => u !== this.props.user)
-                          .length === 0
+                        .filter(u => u !== this.props.user)
+                        .length === 0 && !viewVideo
                       ) {
                         this.setState({
                           notification: "No one else is sharing video! Video will appear once anybody else turns on video sharing."
                         })
                       }
+                      this.setState({ viewVideo: !viewVideo });
                     }}
                   />
                 }

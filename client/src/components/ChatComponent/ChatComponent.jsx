@@ -2,6 +2,7 @@ import React from 'react';
 import io from 'socket.io-client';
 
 import './ChatComponent.css';
+const emojis = ['😂', '😄', '😜', '😛', '❤️️', '😔', '😆', '😐', '😕', '😶', '😑', '🙁'];
 
 class ChatComponent extends React.Component {
   constructor(props) {
@@ -90,6 +91,17 @@ class ChatComponent extends React.Component {
             onChange={this.handleTextChange}
           />
           <div className='send' onClick={this.sendMessage}>SEND</div>
+        </div>
+
+        <div className='emoji'>
+        {emojis.map(e => 
+          <span onClick={() => {
+            this.setState({
+              text: this.state.text + e
+            })
+          }}>{e}
+          </span>
+        )}
         </div>
       </div>
     )

@@ -3,7 +3,7 @@ Realtime chat application with sentiment analysis
 
 #### To run locally
 - cd client && npm install && npm run build
-- cd ..
+- cd .. && npm install
 - npm run start
 
 #### Try on Heroku

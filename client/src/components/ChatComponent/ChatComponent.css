@@ -45,3 +45,13 @@ textarea {
   cursor: pointer;
 }
 
+.emoji {
+  width: 80%;
+  margin: 10px auto;
+  font-size: 18px;
+}
+
+span {
+  cursor: pointer;
+}
+
