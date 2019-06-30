@@ -7,29 +7,26 @@ module.exports = function socket(io, activeUsers) {
     const username = socket.handshake.query.username;
     console.log(`${username} connected!`);
     if (activeUsers.indexOf(username) < 0) {
-      activeUsers.push(socket.handshake.query.username);
-      io.emit('send message', { username: 'admin', message: `${username} joined.`});
+      activeUsers.push(username);
+      socket.broadcast.emit('send message', { username: 'admin', message: `${username} joined.`});
+      io.emit('user', activeUsers); // send to all connected clients
     }
     
     // handle disconnect
     socket.on('disconnect', () => {
       console.log(`${username} disconnected`);
-      const index = activeUsers.indexOf(username);
-      if (index > -1) {
-        activeUsers.splice(index, 1);
-        console.log('called disconnect');
-        io.emit('send message', { username: 'admin', message: `${username} left chat.`});
-      };
+      if (activeUsers.indexOf(username) > -1) {
+        activeUsers.splice(activeUsers.indexOf(username), 1);
+        io.emit('user', activeUsers);
+        socket.broadcast.emit('send message', { username: 'admin', message: `${username} left chat.`});
+      }      
     });
   
     // receive message. find out emotion. broadcast (message + emotion) to all active users and also archive in db
     socket.on('send message', async ({ message, username }) => {
       console.log('message received', message, 'from user', username);
-      io.emit('send message', { message, username }); // broadcast message
-
-      let emotion = await getEmotion(message);
-      
-      console.log('emotion', emotion);
+      const emotion = await getEmotion(message);
+      io.emit('send message', { message, username, emotion }); // send to all connected clients
 
       const newComment = new Comment({
         username, message, emotion: 'neutral'
@@ -39,8 +36,7 @@ module.exports = function socket(io, activeUsers) {
 
     // video handler
     socket.on('video', (image) => {
-      // console.log('video', image)
-      socket.broadcast.emit('video', image)
+      socket.broadcast.emit('video', image) // send to all cliente except sender
     })
   }
 }

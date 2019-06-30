@@ -13,6 +13,9 @@ body {
   padding: 10px 30px;
   background-color: var(--secondary);
   color: white;
+  position: fixed;
+  width: 96%;
+  z-index: 2;
 }
 
 .title {
@@ -21,11 +24,12 @@ body {
 }
 
 .form {
-  margin: 70px auto 0;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   width: 300px;
   position: relative;
+  padding-top: 120px;
 }
 
 .footer {

@@ -2,7 +2,10 @@ import React from 'react';
 import { sessionApi, activeUsersApi } from '../../api';
 import io from 'socket.io-client';
 import ViewVideo from '../ViewVideoComponent';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import ChatComponent from '../ChatComponent';
 
 import './HomeComponent.css';
 
@@ -14,6 +17,9 @@ class HomeComponent extends React.Component {
       message: '',
       allMessages: [],
       imageSrc: null,
+      shareVideo: false,
+      viewVideo: false,
+      allusers: [],
     }
   }
 
@@ -22,6 +28,12 @@ class HomeComponent extends React.Component {
 
     this.socket.on('video', (image) => {
       this.setState({ imageSrc: image })
+    });
+
+    this.socket.on('user', (list) => {
+      this.setState({
+        allusers: list
+      })
     })
 
     this.socket.on('send message', ({ message, username }) => {
@@ -47,16 +59,64 @@ class HomeComponent extends React.Component {
     this.socket.emit('send message', { message: this.state.message, username: this.props.user });
   }
 
+  getUserList = () => {
+    return this.state.allusers.filter(u => {
+      return u !== this.props.user.toLowerCase()
+    })
+  }
+
   render() {
+    const activeUsers = this.getUserList();
+
     return (
       <div>
-         <div className='header'>
-          <div className='title'>Real-Time Chat Application</div>
-            <Button color='inherit' onClick={this.logout}>Logout</Button>
+        <div className='header'>
+        <div className='title'>Real-Time Chat Application</div>
+          <Button color='inherit' onClick={this.logout}>Logout</Button>
         </div>
-        Home
-        <button onClick={this.logout}>Logout</button>
-        <div>Logged in as {this.props.user}</div>
+
+        <div className='container'>
+
+          <div className='top'>
+            <div className='name'>Welcome, {this.props.user}!</div>
+            <div className='actions'>
+              <FormControlLabel
+                control={
+                  <Checkbox 
+                    checked={this.state.viewVideo} 
+                    onChange={() => this.setState({ viewVideo: !this.state.viewVideo})}
+                  />
+                }
+                label="View Video"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox 
+                    checked={this.state.shareVideo} 
+                    onChange={() => this.setState({ shareVideo: !this.state.shareVideo})}
+                  />
+                }
+                label="Share Video"
+              />
+            </div>
+          </div>
+
+          
+          <div className='online'>
+            {!activeUsers.length && (
+              'Nobody else online right now!'
+            )}
+            {!!activeUsers.length && (
+              `Other online users - ${activeUsers.join(', ')}`
+            )}
+          </div>
+
+          <ChatComponent socket={this.socket} user={this.props.user} />
+
+
+        </div>
+
+        {/* <div>Logged in as {this.props.user}</div>
         <div>
           <span>Enter message</span>
           <input onChange={e => this.setState({message: e.target.value})}/>
@@ -67,7 +127,7 @@ class HomeComponent extends React.Component {
           <div>{message}</div>)}
 
         <ViewVideo socket={this.socket}/>
-        <img src={this.state.imageSrc}/>
+        <img src={this.state.imageSrc}/> */}
       </div>
     )
   }

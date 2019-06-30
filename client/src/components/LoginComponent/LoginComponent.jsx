@@ -7,6 +7,7 @@ import { headers, sessionApi } from '../../api';
 import './LoginComponent.css';
 
 const initialState = {
+  name: '',
   username: '',
   password: '',
   confPassword: '',
@@ -15,6 +16,7 @@ const initialState = {
   passwordError: '',
   confirmError: '',
   notification: '',
+  nameError: '',
 }
 
 class LoginComponent extends React.Component {
@@ -80,6 +82,15 @@ class LoginComponent extends React.Component {
     return true;
   }
 
+  validateName = () => {
+    if (!this.state.name) {
+      this.setState({ nameError: 'Name is required.'})
+      return false;
+    } 
+    this.setState({ nameError: '' });
+    return true;
+  }
+
   login = async () => {
     const { username, password } = this.state;
 
@@ -107,7 +118,8 @@ class LoginComponent extends React.Component {
     const u = this.validateUsername(this.state.username, true);
     const p = this.validatePassword();
     const c = this.validateConfirmPassword();
-    if (!(u && c && p)) return;
+    const n = this.validateName();
+    if (!(u && c && p && n)) return;
 
     const { username, password } = this.state;
     fetch(sessionApi, {
@@ -141,6 +153,17 @@ class LoginComponent extends React.Component {
           <div className='title'>Real-Time Chat Application</div>
         </div>
         <div className='form'>
+          {isNew && (
+            <TextField
+              error={this.state.nameError !== ''}
+              label="Name"
+              onChange={this.handleInput('name')}
+              margin="normal"
+              variant="outlined"
+              helperText={this.state.nameError}
+              value={this.state.name}
+            />
+          )}
           <TextField
             error={this.state.userError !== ''}
             label="Username"

@@ -61,7 +61,7 @@ class App extends Component {
     return (
       <div>
         {this.state.username ? 
-          <HomeComponent onLogout={this.onLogout} user={this.state.username}/> 
+          <HomeComponent onLogout={this.onLogout} user={this.state.username} /> 
           : <LoginComponent onLogin={this.onLogin} users={this.state.users} fetchUsers={this.fetchUsers}/>
         }
       </div>
