@@ -1,2 +1,2 @@
 # realtime-chat-app
-Realtime chat application
+Realtime chat application with sentiment analysis
