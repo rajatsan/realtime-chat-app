@@ -16,31 +16,36 @@ class HomeComponent extends React.Component {
     this.state = {
       message: '',
       allMessages: [],
-      imageSrc: null,
+      imageSrc: {},
       shareVideo: false,
       viewVideo: false,
       allusers: [],
+      videoUsers: [],
     }
   }
 
   componentDidMount() {
     this.socket = io.connect('', { query: `username=${this.props.user}`});
 
-    this.socket.on('video', (image) => {
-      this.setState({ imageSrc: image })
+    this.socket.on('video', ({ image, user }) => {
+      this.setState({ imageSrc: {
+        ...this.state.imageSrc,
+        [user]: image,
+      }})
     });
 
     this.socket.emit('join');
-    console.log('called join event');
     this.socket.on('user', (list) => {
-      console.log('mounting');
       this.setState({
         allusers: list
       })
+    });
+
+    this.socket.on('video toggle', ({ videoUsers }) => {
+      this.setState({ videoUsers });
     })
 
-    this.socket.on('send message', ({ message, username }) => {
-      console.log('messgae')
+    this.socket.on('send message', ({ message }) => {
       this.setState({
         allMessages: this.state.allMessages.concat([message])
       });
@@ -53,7 +58,6 @@ class HomeComponent extends React.Component {
   }
 
   logout = () => {
-    console.log('eavging');
     this.socket.emit('leave');
     this.socket.disconnect();
     fetch(sessionApi, {
@@ -72,9 +76,34 @@ class HomeComponent extends React.Component {
     })
   }
 
+  getVideos = () => {
+    const view = [];
+    const { viewVideo, shareVideo, videoUsers } = this.state;
+    if (shareVideo) {
+      view.push(
+        <ViewVideo socket={this.socket} user={'You'}/>
+      )
+    }
+
+    if (viewVideo) {
+      videoUsers
+      .filter(u => u !== this.props.user)
+      .forEach(u => (
+        view.push(
+          <div className='imageContainer'>
+            <img src={this.state.imageSrc[u]} />
+            <div>{u}</div>
+          </div>
+        )
+      ))
+    }
+
+    return view;
+  }
+
   render() {
     const activeUsers = this.getUserList();
-    console.log('users', activeUsers)
+    const { viewVideo, shareVideo } = this.state;
     return (
       <div>
         <div className='header'>
@@ -91,7 +120,7 @@ class HomeComponent extends React.Component {
                 control={
                   <Checkbox 
                     checked={this.state.viewVideo} 
-                    onChange={() => this.setState({ viewVideo: !this.state.viewVideo})}
+                    onChange={() => this.setState({ viewVideo: !this.state.viewVideo })}
                   />
                 }
                 label="View Video"
@@ -100,7 +129,10 @@ class HomeComponent extends React.Component {
                 control={
                   <Checkbox 
                     checked={this.state.shareVideo} 
-                    onChange={() => this.setState({ shareVideo: !this.state.shareVideo})}
+                    onChange={() => {
+                      this.socket.emit('video toggle', !this.state.shareVideo)
+                      this.setState({ shareVideo: !this.state.shareVideo })
+                    }}
                   />
                 }
                 label="Share Video"
@@ -117,6 +149,10 @@ class HomeComponent extends React.Component {
               `Other online users - ${activeUsers.join(', ')}`
             )}
           </div>
+
+          {(viewVideo || shareVideo) && (
+            <div className='videoWrapper'>{this.getVideos()}</div>
+          )}
 
           <ChatComponent socket={this.socket} user={this.props.user} />
 

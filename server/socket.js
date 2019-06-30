@@ -1,6 +1,7 @@
 const Comment = require('./models/comments');
 const getEmotion = require('./utils/emotion');
 
+let videoUsers = [];
 
 module.exports = function socketHandler(io, activeUsers) {
   return function (socket) {
@@ -38,9 +39,24 @@ module.exports = function socketHandler(io, activeUsers) {
       newComment.save();
     });
 
+    socket.on('video toggle', (state) => {
+      if (!state) {
+        videoUsers = videoUsers.filter(v => v !== username)
+      } else {
+        if (videoUsers.indexOf(username) < 0)
+          videoUsers.push(username);
+      }
+      socket.broadcast.emit('video toggle', {
+        videoUsers
+      })
+    })
+
     // video handler
     socket.on('video', (image) => {
-      socket.broadcast.emit('video', image) // send to all cliente except sender
+      socket.broadcast.emit('video', {
+        image,
+        user: username
+      }) // send to all cliente except sender
     })
   }
 }

@@ -24,3 +24,21 @@
   padding: 15px 30px;
   border-bottom: solid 1px gray;
 }
+
+.videoWrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+img {
+  width: 250px;
+  height: 190px;
+  margin-top: 5px;
+  background-color: var(--secondary);
+}
+
+.imageContainer {
+  width: 250px;
+  text-align: center;
+  color: var(--secondary);
+}

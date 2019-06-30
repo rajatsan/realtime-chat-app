@@ -26,7 +26,6 @@ class ViewVideoComponent extends React.Component {
       context.height = canvas.height;
 
       setInterval(() => {
-        // console.log('doing this')
         context.drawImage(this.video,0,0,context.width,context.height);
         if (this.props.socket)
           this.props.socket.emit('video', canvas.toDataURL('image/webp'));
@@ -60,9 +59,9 @@ class ViewVideoComponent extends React.Component {
 
   render() {
     return (
-      <div>
-        <div>View Video Component</div>
+      <div className='videoContainer'>
         <video autoPlay={true}/>
+        <div>{this.props.user}</div>
         <canvas />
       </div>
     )

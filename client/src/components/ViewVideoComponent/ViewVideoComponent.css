@@ -6,3 +6,9 @@ video {
   width: 250px;
   height: 200px;
 }
+
+.videoContainer {
+  width: 250px;
+  text-align: center;
+  color: var(--secondary);
+}
